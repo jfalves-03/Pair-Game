@@ -18,12 +18,17 @@ function addBlur(image){ // ADD BLUR ONCE THE CHOSEN CARDS HAVE THE SAME IMAGE
     image.classList.add("blur");
 }
 
-function pushListCard(card){ // APPEND THE CARD TO THE LIST CARD
-    listCard.push(card);
+function removeBlur(card){
+    cardImage = card.querySelector("img");
+    cardImage.classList.remove("blur");
 }
 
 function pushListImage(cardImage){ // APPEND THE IMAGE FROM CARD TO THE LIST CARD
     listImage.push(cardImage);
+}
+
+function pushListCard(card){ // APPEND THE CARD TO THE LIST CARD
+    listCard.push(card);
 }
 
 function resetList(){ // EMPTY THE LIST
@@ -32,8 +37,7 @@ function resetList(){ // EMPTY THE LIST
 }
 
 function countPoint(){
-    counter++;
-    console.log(counter);
+    counterPoint++;
 }
 
 function pointTrue(image1, image2){ // IT´S ACTIVATED WHEN THE CHOSEN CARDS HAVE THE SAME IMAGE
@@ -53,25 +57,20 @@ function pointFalse(image1, image2){ // IT´S ACTIVATED WHEN THE CHOSEN CARDS HA
 }
 
 function checkCards(cardImage){ // FUNCTION WITH A ROLE TO ANALYSE THE CHOSEN CARDS
-    isDifferent = checkingFlippedCardList(cardImage);
-
-    console.log(isDifferent);
-
-    if (isDifferent == true){
-        pushListImage(cardImage)
-        if (listImage.length == 2){
-            var image1 = listImage[0];
-            var image2 = listImage[1]; 
-            const point = siblingCards(image1, image2);
-            if (point == false){
-                pointFalse(image1, image2);
-            } else {
-                pointTrue(image1, image2);
-                countPoint();
-                return true;
-            }
-        }   
-    }
+    pushListImage(cardImage);
+    if (listImage.length == 2){
+        var image1 = listImage[0];
+        var image2 = listImage[1]; 
+        const point = siblingCards(image1, image2);
+        if (point == false){
+            pointFalse(image1, image2);
+        } else {
+            pointTrue(image1, image2);
+            countPoint();
+            console.log(flippedCardsList);
+            return true;
+        }
+}
 }
 
 function showImage(card){ // SHOW IMAGE FROM THE CARD ONCE THE CARD IS CLICKED
@@ -96,6 +95,7 @@ function buttonCounter(){
         CARD.forEach(card => {
             removeImage(card);
             removeBackgroundWhite(card);
+            removeBlur(card);
         })
     } else {
         return;
@@ -122,7 +122,7 @@ function showFinalGameContainer(){
 
 function removeFinalGameContainer(){
     FINAL_GAME_CONTAINER.classList.remove("show");
-    counter = 0;
+    counterPoint = 0;
     buttonIsAppear = false;
     cardIsAppear = false;
     window.onload = run();
@@ -147,19 +147,20 @@ function differentCards(img1, img2){ // IT´S ACTIVATED WHEN THE CHOSEN CARDS HA
     img2.classList.remove("show");
 }
 
-function checkingFlippedCardList(img){ // RESPONSIBLE FOR VERIFYING IF THE CLICKED CARD HAS BEEN FLIPPED BEFORE AS THE SIBLING CARD OF ANOTHER ONE
-    let imageAlt = img.alt.slice(0, -1)
-    for (let i = 0; i < flippedCardsList.length; i++){
-        if (imageAlt == flippedCardsList[i]){
-            return false;
+
+function clickFlippedCards(card){
+    let cardImage = card.querySelector("img");
+    let cardImageAlt = cardImage.alt.slice(0, -1);
+    for(let i = 0; i < flippedCardsList.length; i++){
+        if (cardImageAlt == flippedCardsList[i]){
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 function addCardToFlippedCardsList(img){ // APPEND THE IMAGE ALT TO THE FLIPPED CARDS LIST
     flippedCardsList.push(img.alt.slice(0, -1));
-    console.log(flippedCardsList);
 }
 
 function start(){ // START THE CRONOMETER
@@ -202,7 +203,7 @@ const CARDS = document.querySelector(".cards"); // CARD CONTAINER VARIABLE
 const CARD = document.querySelectorAll(".card"); //CARD VARIABLE 
 
 const FINAL_GAME_CONTAINER = document.querySelector(".final-game-container");
-const YOUR_TIME = document.querySelector(".your-time");
+const YOUR_TIME = document.querySelector(".final-game .your-time");
 
 var flippedCardsList = []; // LIST TO SAVE FLIPPED CARDS
 var listImage = []; // LIST TO SAVE IMAGE FROM CHOSEN CARDS
@@ -214,15 +215,22 @@ BUTTON.addEventListener("click", function(){
     counterButton++;
 })
 
-var game = CARD.forEach(card => {
+    CARD.forEach(card => {
     card.addEventListener("click", function(){
-        addBackgroundWhite(card);
-        pushListCard(card);
-        cardImage = showImage(card);
-        checkCards(cardImage);
-        if (counter==8) {
-            showFinalGameContainer();
-            return true;
+        itsAlreadyClicked = clickFlippedCards(card);
+        console.log(itsAlreadyClicked);
+        if (itsAlreadyClicked == true){
+            return
+        } else{
+            addBackgroundWhite(card);
+            pushListCard(card);
+            cardImage = showImage(card);
+            checkCards(cardImage);
+            if (counterPoint==8) {
+                showFinalGameContainer();
+                console.log(YOUR_TIME);
+                return true;
+            }
         }
     })
 });
@@ -242,8 +250,9 @@ var cron; // CRONOMETER VARIABLE
 
 var isDifferent; // VARIABLE FOR CHECKING IF THE CHOSEN CARDS ARE DIFFERENT;
 var isNewFlippedCard; // VARIABLE FOR CHECKING IF THE CLICKED CARD HAS BEEN CLICKED BEFORE
+var itsAlreadyClicked;
 
-var counter = 0; // POINTS COUNTER
+var counterPoint = 0; // POINTS COUNTER
 var counterButton = 0; // BUTTON CLICKING COUNTER
 /**************************/
 

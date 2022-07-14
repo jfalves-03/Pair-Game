@@ -161,5 +161,10 @@ main{
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    gap: 0.5rem;
+}
+
+.your-time{
+    font-size: 0.8rem;
 }
 /*****************/
