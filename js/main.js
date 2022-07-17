@@ -1,10 +1,21 @@
 function run(){ // IT´S ACTIVATED ONCE THE PAGE LOADS.
-    if (buttonIsAppear == false){
-        buttonIsAppear = true;
-        reset();
-        showButton();
-    }
+    imageHtmlList = resetImageHtmlList();
+    resetCards();
+    shuffleCards();
+    beforePlay();
 }
+
+function beforePlay(){
+    showCards();
+    CARD.forEach(card => {
+        addBackgroundWhite(card);
+        showImage(card);
+        setTimeout(removeImage, 5000, card);
+        setTimeout(removeBackgroundWhite, 5000, card)
+    })
+    setTimeout(showButton, 5000);
+}
+
 
 function addBackgroundWhite(card){ // CHANGE THE CARD´S BACKGROUND COLOR TO WHITE ONCE IT´S CLICKED  
     card.classList.add("background-white");
@@ -32,7 +43,29 @@ function pushListCard(card){ // APPEND THE CARD TO THE LIST CARD
 }
 
 function resetList(){ // EMPTY THE LIST
-    list = [];
+    let list = [];
+    return list;
+}
+
+function resetImageHtmlList(){
+    list = [
+        '<img src="assets/images/apple.png" alt="apple-logo1">', 
+        '<img src="assets/images/apple.png" alt="apple-logo2">', 
+        '<img src="assets/images/devicon.png" alt="devicon-logo1">', 
+        '<img src="assets/images/devicon.png" alt="devicon-logo2">', 
+        '<img src="assets/images/electron.png" alt="electron-logo1">', 
+        '<img src="assets/images/electron.png" alt="electron-logo2">', 
+        '<img src="assets/images/github.png" alt="github-logo1">', 
+        '<img src="assets/images/github.png" alt="github-logo2">', 
+        '<img src="assets/images/go.png" alt="go-logo1">', 
+        '<img src="assets/images/go.png" alt="go-logo2">',
+        '<img src="assets/images/handlebars.png" alt="handlebars-logo1">', 
+        '<img src="assets/images/handlebars.png" alt="handlebars-logo2">', 
+        '<img src="assets/images/ionic.png" alt="ionic-logo1">', 
+        '<img src="assets/images/ionic.png" alt="ionic-logo2">', 
+        '<img src="assets/images/typescript.png" alt="typescript-logo1">', 
+        '<img src="assets/images/typescript.png" alt="typescript-logo2">'
+    ];
     return list;
 }
 
@@ -56,6 +89,23 @@ function pointFalse(image1, image2){ // IT´S ACTIVATED WHEN THE CHOSEN CARDS HA
     listCard = resetList();
 }
 
+function resetCards(){
+    CARD.forEach(card => {
+        card.innerHTML = "";
+    })
+}
+
+function shuffleCards(){
+    CARD.forEach(card => {
+        let index = Math.floor(Math.random() * imageHtmlList.
+        length);
+    
+        card.innerHTML = imageHtmlList[index];
+
+        imageHtmlList.splice(index, 1);
+    })
+}
+
 function checkCards(cardImage){ // FUNCTION WITH A ROLE TO ANALYSE THE CHOSEN CARDS
     pushListImage(cardImage);
     if (listImage.length == 2){
@@ -67,7 +117,6 @@ function checkCards(cardImage){ // FUNCTION WITH A ROLE TO ANALYSE THE CHOSEN CA
         } else {
             pointTrue(image1, image2);
             countPoint();
-            console.log(flippedCardsList);
             return true;
         }
 }
@@ -91,31 +140,20 @@ function showButton(){ // SHOW BUTTON WHEN THE PAGE LOADS
 }
 
 function buttonCounter(){
-    if (counterButton > 0){
-        CARD.forEach(card => {
-            removeImage(card);
+    CARD.forEach(card => {
+        if (counterButton > 0){
             removeBackgroundWhite(card);
-            removeBlur(card);
-        })
-    } else {
-        return;
-    }
+        }
+    })
 }
 
 function showCards(){ // SHOW CARD CONTAINER WHE THE BUTTON IS CLICKED
-    if (cardIsAppear == false){
-        buttonIsAppear = false;
-        cardIsAppear = true;
-
-        BUTTON.classList.remove("show");
-        CARDS.classList.add("show");
-        start();
-    }
+    BUTTON.classList.remove("show");
+    CARDS.classList.add("show");
 }
 
 function showFinalGameContainer(){
     FINAL_GAME_CONTAINER.classList.add("show");
-    pause();
     flippedCardsList = resetList(flippedCardsList);
     YOUR_TIME.innerText = "Your Time: " + MINUTE.innerText + ":" + SECOND.innerText + ":" + MILLISECOND.innerText;
 }
@@ -164,7 +202,7 @@ function addCardToFlippedCardsList(img){ // APPEND THE IMAGE ALT TO THE FLIPPED 
 }
 
 function start(){ // START THE CRONOMETER
-    reset(); 
+    reset();
     cron = setInterval(timer, 10);
 }
 
@@ -198,6 +236,8 @@ function timer() { // FUNCTIONS THAT COUNTS THE TIME WHILE THE GAME IS RUNNING
 }
 
 /*********VARIABLES********/
+var teste;
+
 const BUTTON = document.querySelector(".button-play"); // BUTTON VARIABLE
 const CARDS = document.querySelector(".cards"); // CARD CONTAINER VARIABLE
 const CARD = document.querySelectorAll(".card"); //CARD VARIABLE 
@@ -208,17 +248,18 @@ const YOUR_TIME = document.querySelector(".final-game .your-time");
 var flippedCardsList = []; // LIST TO SAVE FLIPPED CARDS
 var listImage = []; // LIST TO SAVE IMAGE FROM CHOSEN CARDS
 var listCard = []; // LIST TO SAVE CHOSEN CARDS
+var imageHtmlList;
 
 BUTTON.addEventListener("click", function(){
+    start();
     buttonCounter();
     showCards();
     counterButton++;
 })
 
-    CARD.forEach(card => {
+CARD.forEach(card => {
     card.addEventListener("click", function(){
         itsAlreadyClicked = clickFlippedCards(card);
-        console.log(itsAlreadyClicked);
         if (itsAlreadyClicked == true){
             return
         } else{
@@ -228,15 +269,13 @@ BUTTON.addEventListener("click", function(){
             checkCards(cardImage);
             if (counterPoint==8) {
                 showFinalGameContainer();
-                console.log(YOUR_TIME);
+                pause();
+                reset();
                 return true;
             }
         }
     })
 });
-
-var buttonIsAppear = false; // CONDITIONAL VARIABLE FOR BUTTON
-var cardIsAppear = false; // CONDITIONAL VARIABLE FOR CARD CONTAINER
 
 var minute = 0; // MINUTE VARIABLE FROM CRONOMETER
 var second = 0; // SECOND VARIABLE FROM CRONOMETER
@@ -248,7 +287,6 @@ const MILLISECOND = document.getElementById("millisecond");
 
 var cron; // CRONOMETER VARIABLE
 
-var isDifferent; // VARIABLE FOR CHECKING IF THE CHOSEN CARDS ARE DIFFERENT;
 var isNewFlippedCard; // VARIABLE FOR CHECKING IF THE CLICKED CARD HAS BEEN CLICKED BEFORE
 var itsAlreadyClicked;
 
